@@ -1,0 +1,259 @@
+
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>مدرسه دانایی</title>
+<style>
+body {
+  font-family: Tahoma, sans-serif;
+  background: linear-gradient(135deg,#dff4ff,#f5e8ff);
+  margin:0;
+  padding:20px;
+  text-align:center;
+  color:#243047;
+}
+.container {
+  max-width:700px;
+  margin:auto;
+  background:white;
+  padding:22px;
+  border-radius:22px;
+  box-shadow:0 5px 20px #0002;
+}
+h1 {color:#2458b8}
+button {
+  border:0;
+  padding:13px 18px;
+  margin:7px;
+  border-radius:12px;
+  background:#2864d7;
+  color:white;
+  font-size:16px;
+  cursor:pointer;
+}
+button:hover {opacity:.85}
+.option {
+  display:block;
+  width:100%;
+  background:#edf3ff;
+  color:#243047;
+  border:2px solid #d4e0fa;
+}
+.correct {background:#c9f7d5!important}
+.wrong {
+  background:#ffd4d4!important;
+  animation:shake .3s;
+}
+@keyframes shake {
+  0%,100% {transform:translateX(0)}
+  25% {transform:translateX(7px)}
+  75% {transform:translateX(-7px)}
+}
+#message {
+  font-size:22px;
+  font-weight:bold;
+  margin:18px;
+}
+textarea {
+  width:95%;
+  height:100px;
+  border:2px solid #ccd8ee;
+  border-radius:12px;
+  padding:10px;
+  font-family:Tahoma;
+}
+.hidden {display:none}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>🎓 مدرسه دانایی</h1>
+<p>چهار کتاب دانایی: فارسی، علوم، مطالعات اجتماعی و هدیه‌های آسمان</p>
+
+<div id="home">
+<h3>یک درس انتخاب کن</h3>
+<button onclick="start('فارسی')">فارسی</button>
+<button onclick="start('علوم')">علوم</button>
+<button onclick="start('مطالعات اجتماعی')">مطالعات اجتماعی</button>
+<button onclick="start('هدیه‌های آسمان')">هدیه‌های آسمان</button>
+</div>
+
+<div id="quiz" class="hidden">
+<h3 id="lesson"></h3>
+<p id="counter"></p>
+<h3 id="question"></h3>
+<div id="answers"></div>
+<div id="message"></div>
+<button id="next" class="hidden" onclick="nextQuestion()">سؤال بعدی</button>
+</div>
+
+<div id="result" class="hidden">
+<h2>🏆 پایان آزمون</h2>
+<h3 id="score"></h3>
+<div id="review"></div>
+<button onclick="location.reload()">بازگشت به خانه</button>
+</div>
+
+<hr>
+<p><b>سازنده: علیرضا دهقانی</b></p>
+<p>۱۱ ساله | کلاس ششم | دبستان شهید فرخی | کازرون</p>
+</div>
+
+<script>
+const bank = {
+"فارسی": [
+ {q:"مترادف واژه شجاع چیست؟",a:["ترسو","دلیر","خسته","آرام"],c:1},
+ {q:"کدام واژه جمع است؟",a:["کتاب","درخت","دانش‌آموزان","مداد"],c:2},
+ {q:"متضاد روشن چیست؟",a:["تاریک","زیبا","سفید","گرم"],c:0},
+ {q:"اسم کدام است؟",a:["دویدن","زیبا","مدرسه","آرام"],c:2},
+ {q:"درست یا نادرست: شعر معمولاً دارای آهنگ و وزن است.",type:"tf",c:true},
+ {q:"درست یا نادرست: واژه دانا به معنی ناآگاه است.",type:"tf",c:false},
+ {q:"یک جمله با کلمه دانایی بنویس.",type:"essay"}
+],
+"علوم": [
+ {q:"کدام سیاره به خورشید نزدیک‌تر است؟",a:["زمین","مریخ","عطارد","مشتری"],c:2},
+ {q:"گیاهان برای غذاسازی به چه چیزی نیاز دارند؟",a:["نور","پلاستیک","شن","آهن"],c:0},
+ {q:"کدام حالت ماده شکل ثابت دارد؟",a:["گاز","جامد","مایع","بخار"],c:1},
+ {q:"قلب چه کاری انجام می‌دهد؟",a:["هضم غذا","دیدن","پمپاژ خون","تنفس"],c:2},
+ {q:"درست یا نادرست: زمین به دور خورشید می‌چرخد.",type:"tf",c:true},
+ {q:"درست یا نادرست: همه فلزها در آب حل می‌شوند.",type:"tf",c:false},
+ {q:"چرخه آب را به زبان خودت توضیح بده.",type:"essay"}
+],
+"مطالعات اجتماعی": [
+ {q:"پایتخت ایران کدام شهر است؟",a:["شیراز","تهران","تبریز","اصفهان"],c:1},
+ {q:"نقشه چه چیزی را نشان می‌دهد؟",a:["نمایی از مکان‌ها","مزه غذا","صدای جانوران","رنگ‌ها"],c:0},
+ {q:"کدام مورد از منابع طبیعی است؟",a:["آب","پلاستیک","تلویزیون","خودرو"],c:0},
+ {q:"همکاری در جامعه چه نتیجه‌ای دارد؟",a:["اختلاف بیشتر","پیشرفت","تنهایی","بی‌نظمی"],c:1},
+ {q:"درست یا نادرست: رعایت قانون برای زندگی اجتماعی مهم است.",type:"tf",c:true},
+ {q:"درست یا نادرست: همه مردم یک جامعه وظایف یکسانی دارند.",type:"tf",c:false},
+ {q:"چرا باید در مصرف آب صرفه‌جویی کنیم؟",type:"essay"}
+],
+"هدیه‌های آسمان": [
+ {q:"نماز چند رکعت است؟",a:["دو","سه","چهار","پنج"],c:3},
+ {q:"کتاب آسمانی مسلمانان چیست؟",a:["قرآن","شاهنامه","مثنوی","گلستان"],c:0},
+ {q:"کدام کار پسندیده است؟",a:["دروغ","کمک به دیگران","تمسخر","بی‌احترامی"],c:1},
+ {q:"شکرگزاری یعنی چه؟",a:["ناسپاسی","قدردانی از نعمت‌ها","غرور","فراموشی"],c:1},
+ {q:"درست یا نادرست: راستگویی از ویژگی‌های اخلاقی خوب است.",type:"tf",c:true},
+ {q:"درست یا نادرست: احترام به پدر و مادر کار ناپسندی است.",type:"tf",c:false},
+ {q:"یک نمونه از کمک به دیگران را بنویس.",type:"essay"}
+]
+};
+
+let questions=[], index=0, score=0, wrong=[], current=null;
+let answered=false, reviewMode=false;
+
+function shuffle(arr) {
+  let a=[...arr];
+  for(let i=a.length-1;i>0;i--){
+    let j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+function dailyShuffle(arr) {
+  let day=new Date().toISOString().slice(0,10);
+  let seed=0;
+  for(let ch of day) seed=(seed*31+ch.charCodeAt(0))>>>0;
+  let a=[...arr];
+  for(let i=a.length-1;i>0;i--){
+    seed=(seed*1664525+1013904223)>>>0;
+    let j=seed%(i+1);
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+function start(subject){
+  questions=dailyShuffle(bank[subject]);
+  index=0;score=0;wrong=[];reviewMode=false;
+  document.getElementById('home').classList.add('hidden');
+  document.getElementById('quiz').classList.remove('hidden');
+  document.getElementById('lesson').textContent=subject;
+  showQuestion();
+}
+
+function showQuestion(){
+  answered=false;
+  current=questions[index];
+  document.getElementById('counter').textContent=
+    `سؤال ${index+1} از ${questions.length}`;
+  document.getElementById('question').textContent=current.q;
+  document.getElementById('answers').innerHTML='';
+  document.getElementById('message').textContent='';
+  document.getElementById('next').classList.add('hidden');
+
+  if(current.type==='essay'){
+    document.getElementById('answers').innerHTML=
+      '<textarea id="essay" placeholder="پاسخت را اینجا بنویس..."></textarea><br><button onclick="essayDone()">ثبت پاسخ</button>';
+  } else if(current.type==='tf'){
+    makeButton('درست',true);
+    makeButton('نادرست',false);
+  } else {
+    let choices=current.a.map((v,i)=>({v,correct:i===current.c}));
+    choices=shuffle(choices);
+    choices.forEach(item=>makeButton(item.v,item.correct));
+  }
+}
+
+function makeButton(label,isCorrect){
+  let b=document.createElement('button');
+  b.className='option';
+  b.textContent=label;
+  b.onclick=()=>checkAnswer(isCorrect,b);
+  document.getElementById('answers').appendChild(b);
+}
+
+function checkAnswer(correct,button){
+  if(answered)return;
+  answered=true;
+  document.querySelectorAll('.option').forEach(b=>b.disabled=true);
+  if(correct){
+    score++;
+    button.classList.add('correct');
+    document.getElementById('message').textContent='🎉 بابا دستخوش! آفرین!';
+  } else {
+    button.classList.add('wrong');
+    document.getElementById('message').textContent='❌ اشکالی نداره، دوباره تلاش کن!';
+    if(!reviewMode) wrong.push(current);
+  }
+  document.getElementById('next').classList.remove('hidden');
+}
+
+function essayDone(){
+  if(answered)return;
+  answered=true;
+  let answer=document.getElementById('essay').value.trim();
+  document.getElementById('message').textContent=
+    answer ? '✍️ پاسخ ثبت شد! آن را با کتاب درسی مقایسه کن.' :
+    'پاسخی ننوشتی؛ این سؤال را بعداً مرور کن.';
+  if(!answer && !reviewMode) wrong.push(current);
+  document.getElementById('next').classList.remove('hidden');
+}
+
+function nextQuestion(){
+  index++;
+  if(index<questions.length){showQuestion();return;}
+  if(!reviewMode && wrong.length){
+    questions=shuffle(wrong);
+    wrong=[];
+    index=0;
+    reviewMode=true;
+    document.getElementById('lesson').textContent+=' - مرور سؤال‌های نیازمند تمرین';
+    showQuestion();
+  } else finish();
+}
+
+function finish(){
+  document.getElementById('quiz').classList.add('hidden');
+  document.getElementById('result').classList.remove('hidden');
+  document.getElementById('score').textContent=
+    `امتیاز پاسخ‌های تستی و درست/نادرست: ${score}`;
+  document.getElementById('review').textContent=
+    'آفرین که تا پایان آزمون تلاش کردی! پاسخ‌های تشریحی را با کتاب بررسی کن.';
+}
+</script>
+</body>
+</html>
